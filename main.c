@@ -57,14 +57,51 @@
 /* Standard Includes */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "bme280.h"
+
+#include "BOSCH_Sensor.h"
+
+#include "clockConfig.h"
+
+int8_t rst,validAddress,retrieveError;
+double temp,humidity,pressure;
 
 int main(void)
 {
     /* Stop Watchdog  */
     MAP_WDT_A_holdTimer();
 
+    /* Setting Flash wait state */
+    MAP_FlashCtl_setWaitState(FLASH_BANK0, 2);
+    MAP_FlashCtl_setWaitState(FLASH_BANK1, 2);
+
+    /* Enabling the FPU for floating point operation */
+    MAP_FPU_enableModule();
+    MAP_FPU_enableLazyStacking();
+
+    clockStartUp();
+
+    /*Establish BOSCH Sensor Connection*/
+
+
+    rst=sensorInit();
+
+    validAddress = verifyDeviceAddress();
+    if(rst == BME280_E_DEV_NOT_FOUND){
+        //chip not found
+        ;
+    }
+
+    retrieveError=retrieveCalibratedData();
+    temp=getTemp();
+    humidity=getHumidity();
+    pressure=getPressure();
+
     while(1)
     {
-        
+        ;
     }
 }
