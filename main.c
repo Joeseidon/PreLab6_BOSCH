@@ -69,6 +69,8 @@
 int8_t rst,validAddress,retrieveError;
 double temp,humidity,pressure;
 
+int current_count, target_count=8;
+
 int main(void)
 {
     /* Stop Watchdog  */
@@ -100,8 +102,26 @@ int main(void)
     humidity=getHumidity();
     pressure=getPressure();
 
+    /* Configuring SysTick */
+    MAP_SysTick_enableModule();
+    MAP_SysTick_setPeriod(12000000);
+    //MAP_Interrupt_enableSleepOnIsrExit();
+    MAP_SysTick_enableInterrupt();
+    MAP_Interrupt_enableMaster();
+
     while(1)
     {
         ;
+    }
+}
+void SysTick_Handler(void)
+{
+    current_count++;
+    if(current_count==target_count){
+        retrieveError=retrieveCalibratedData();
+        temp=getTemp();
+        humidity=getHumidity();
+        pressure=getPressure();
+        current_count = 0;
     }
 }
